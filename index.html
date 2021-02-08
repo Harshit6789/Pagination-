@@ -1,0 +1,155 @@
+<html>
+
+<head>
+    <title>Pagination</title>
+    <style>
+        #table {
+            border-collapse: collapse;
+            width: 100%;
+        }
+
+        tr:nth-child(even) {
+            background-color: #f2f2f2;
+        }
+
+        tr:hover {
+            background-color: #ddd;
+        }
+
+        #table td,
+        #table th {
+            border: 1px solid #ddd;
+            padding: 8px;
+        }
+
+        button {
+            margin: 1px;
+            padding: 4px;
+        }
+
+        .selected {
+            background-color: green;
+            color: white
+        }
+    </style>
+</head>
+
+<body>
+    <div id="mytable">
+        <table id="table1">
+            <thead style="background-color: #bbbbbb">
+                <tr>
+                    <th>Id</th>
+                    <th>Name</th>
+                    <th>Trip</th>
+                    <th>airline_id</th>
+                    <th>airline_name</th>
+                    <th>airline_country</th>
+                    <th>airline_logo</th>
+                    <th>airline_slogan</th>
+                    <th>airline_head_quaters</th>
+                    <th>airline_website</th>
+                    <th>airline_established</th>
+                    <th>airline__v</th>
+                </tr>
+            </thead>
+            <tbody id="tbody1">
+                <tr></tr>
+            </tbody>
+        </table>
+    </div>
+    <div id="btns" style="margin-top: 10px;padding: 2px;"></div>
+</body>
+<script>
+    var studentArray = [];
+    let totalPage;
+    let dataCount = 20;
+    let Button;
+    //Fetch the A.P.I  
+    function fetch1(i) {
+        if (i) {
+            url = `https://api.instantwebtools.net/v1/passenger?page=${i}&size=${dataCount}`;
+        }
+        fetch(url).then((response) => {
+            return response.json();
+        }).then((data) => {
+            studentArray = data;
+            totalPage = studentArray.totalPages;
+        }).then(() => {
+            insertRecord();
+            if (i == totalPage) {
+                i = i - 1;
+                createButton(i, "last")
+            } else {
+                createButton(i);
+            }
+        })
+    }
+    fetch1(1);
+
+    //Insert the data in the table 
+    function insertRecord() {
+        let tr = "";
+        let table = document.getElementById("tbody1");
+        table.innerHTML = " ";
+        for (let i = 0; i < studentArray.data.length; i++) {
+            tr += `<tr><td>${studentArray.data[i]._id}</td>
+                       <td>${studentArray.data[i].name}</td> 
+                       <td>${studentArray.data[i].trips}</td>
+                       <td>${studentArray.data[i].airline.id}</td>
+                       <td>${studentArray.data[i].airline.name}</td>
+                       <td>${studentArray.data[i].airline.country}</td>
+                       <td>${studentArray.data[i].airline.logo}</td>
+                       <td>${studentArray.data[i].airline.slogan}</td>
+                       <td>${studentArray.data[i].airline.head_quaters}</td>
+                       <td>${studentArray.data[i].airline.website}</td> 
+                       <td>${studentArray.data[i].airline.established}</td>
+                       <td>${studentArray.data[i].__v}</td></tr>`
+
+        }
+
+        table.innerHTML = tr;
+    }
+
+    //Create the buttons value dynamically
+    function createButton(btnval, value) {
+        // document.getElementById("btns").innerHTML = " ";
+        let div1 = document.getElementById("btns");
+        div1.innerHTML = '';
+        let Button;
+        for (let i = btnval; i < (btnval + 1); i++) {
+            Button = `<button  id="btn6" onclick="fetch1(1)">First</button> <button  id="btn4" onclick="previousButton('${value}')" > <<< </button> <button class="selected" id="btn1" value ="${i}" onclick="fetch1(${i})">${i}</button>  <button   id="btn2" value="${i + 1}" onclick="fetch1(${i + 1})">${i + 1}</button> <button id="btn3"onclick="nextButton()"> >>> </button> <button id="btn5" onclick="fetch1(totalPage)">Last</button>`;
+        }
+        div1.innerHTML = Button;
+        if (btnval == 1) {
+            document.getElementById("btn4").disabled = true;
+            document.getElementById("btn6").disabled = true;
+        }
+        if (value == "last") {
+            document.getElementById("tbody1").innertext = "Norecord";
+            document.getElementById("btn1").classList.remove("selected");
+            document.getElementById("btn2").classList.add("selected");
+            document.getElementById("btn3").disabled = true;
+            document.getElementById("btn5").disabled = true;
+        }
+
+    }
+
+
+    // //NextButton functionality
+    function nextButton() {
+        let btn4Val = parseInt(document.getElementById("btn2").value);
+        fetch1(btn4Val);
+    }
+
+    //Previous Button functionality
+    function previousButton(value) {
+        let btn3Val = parseInt(document.getElementById("btn1").value);
+        if (value != "last") {
+            btn3Val -= 1;
+        }
+        fetch1(btn3Val);
+    }
+</script>
+
+</html>
